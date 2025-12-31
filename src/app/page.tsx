@@ -1,16 +1,20 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useTodos } from '@/hooks';
+import { useSession, signOut } from 'next-auth/react';
+import { useApiTodos } from '@/hooks';
 import { TodoInput, TodoList, TodoSidebar } from '@/components/todo';
-import { CheckCircle2, Loader2, Menu } from 'lucide-react';
+import { CheckCircle2, Loader2, Menu, LogOut } from 'lucide-react';
 
 export default function Home() {
+  const { data: session } = useSession();
   const {
     todos,
     categories,
     tags,
     isLoaded,
+    isLoading,
+    error,
     addTodo,
     updateTodo,
     toggleTodo,
@@ -20,7 +24,7 @@ export default function Home() {
     deleteCategory,
     addTag,
     deleteTag,
-  } = useTodos();
+  } = useApiTodos();
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -75,10 +79,29 @@ export default function Home() {
     return 'All Tasks';
   };
 
-  if (!isLoaded) {
+  if (!isLoaded || isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-400 mx-auto" />
+          <p className="mt-2 text-sm text-gray-500">Loading your tasks...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500">Error: {error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
@@ -124,6 +147,30 @@ export default function Home() {
       {/* Main content */}
       <main className="flex-1 overflow-auto">
         <div className="mx-auto max-w-3xl px-8 py-12 pt-16 md:pt-12">
+          {/* User Profile Header */}
+          {session?.user && (
+            <div className="flex items-center justify-end gap-3 mb-4">
+              <span className="text-sm text-gray-600">
+                {session.user.name}
+              </span>
+              {session.user.image && (
+                <img
+                  src={session.user.image}
+                  alt={session.user.name || 'User'}
+                  className="h-8 w-8 rounded-full"
+                  referrerPolicy="no-referrer"
+                />
+              )}
+              <button
+                onClick={() => signOut({ callbackUrl: '/login' })}
+                className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                title="Sign out"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+
           {/* Header */}
           <header className="mb-8">
             <div className="flex items-center gap-3 mb-2">
