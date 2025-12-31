@@ -1,24 +1,30 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useSyncExternalStore } from 'react';
+
+function getStoredValue<T>(key: string, initialValue: T): T {
+    if (typeof window === 'undefined') {
+        return initialValue;
+    }
+    try {
+        const item = window.localStorage.getItem(key);
+        return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+        console.error(`Error reading localStorage key "${key}":`, error);
+        return initialValue;
+    }
+}
 
 export function useLocalStorage<T>(key: string, initialValue: T) {
-    // State to store our value
-    const [storedValue, setStoredValue] = useState<T>(initialValue);
-    const [isLoaded, setIsLoaded] = useState(false);
+    // State to store our value - use lazy initialization
+    const [storedValue, setStoredValue] = useState<T>(() => getStoredValue(key, initialValue));
 
-    // Load from localStorage on mount
-    useEffect(() => {
-        try {
-            const item = window.localStorage.getItem(key);
-            if (item) {
-                setStoredValue(JSON.parse(item));
-            }
-        } catch (error) {
-            console.error(`Error reading localStorage key "${key}":`, error);
-        }
-        setIsLoaded(true);
-    }, [key]);
+    // Track if component has mounted (for hydration)
+    const isLoaded = useSyncExternalStore(
+        () => () => { },
+        () => true,
+        () => false
+    );
 
     // Return a wrapped version of useState's setter function that persists the new value to localStorage
     const setValue = useCallback(

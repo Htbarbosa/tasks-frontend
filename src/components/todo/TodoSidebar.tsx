@@ -5,8 +5,6 @@ import { Category, Tag } from '@/types';
 import { CategoryBadge, TagBadge, Button, Input } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { Plus, Trash2, ChevronDown, ChevronRight, X, LayoutGrid } from 'lucide-react';
-import * as Icons from 'lucide-react';
-import { LucideIcon } from 'lucide-react';
 
 interface TodoSidebarProps {
     categories: Category[];
@@ -74,11 +72,6 @@ export function TodoSidebar({
         }
     };
 
-    // Helper to get icon component for collapsed view
-    const getIconComponent = (iconName: string): LucideIcon => {
-        return (Icons[iconName as keyof typeof Icons] as LucideIcon) || Icons.Folder;
-    };
-
     return (
         <aside
             className={cn(
@@ -143,7 +136,6 @@ export function TodoSidebar({
                 {showCategories && (
                     <div className="space-y-1">
                         {categories.map((category) => {
-                            const IconComponent = getIconComponent(category.icon);
                             return (
                                 <div
                                     key={category.id}

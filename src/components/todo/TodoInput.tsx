@@ -23,11 +23,6 @@ export function TodoInput({ categories, tags, onAdd, defaultCategoryId }: TodoIn
     const categoryRef = useRef<HTMLDivElement>(null);
     const tagRef = useRef<HTMLDivElement>(null);
 
-    // Sync selectedCategory when defaultCategoryId changes
-    useEffect(() => {
-        setSelectedCategory(defaultCategoryId ?? null);
-    }, [defaultCategoryId]);
-
     // Close dropdowns when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {

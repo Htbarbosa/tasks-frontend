@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useSession, signOut } from 'next-auth/react';
+import Image from 'next/image';
 import { useApiTodos } from '@/hooks';
 import { TodoInput, TodoList, TodoSidebar } from '@/components/todo';
 import { CheckCircle2, Loader2, Menu, LogOut } from 'lucide-react';
@@ -154,9 +155,11 @@ export default function Home() {
                 {session.user.name}
               </span>
               {session.user.image && (
-                <img
+                <Image
                   src={session.user.image}
                   alt={session.user.name || 'User'}
+                  width={32}
+                  height={32}
                   className="h-8 w-8 rounded-full"
                   referrerPolicy="no-referrer"
                 />
